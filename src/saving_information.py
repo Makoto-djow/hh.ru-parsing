@@ -1,6 +1,6 @@
 import json
 
-from hh_abstract_class import AddingVacancies
+from src.hh_abstract_class import AddingVacancies
 
 
 class SavingVacancies(AddingVacancies):
@@ -31,7 +31,7 @@ class SavingVacancies(AddingVacancies):
         except FileNotFoundError:
             print('Файл не существует')
 
-    def getting_data(self, name, top, salary, requirement):
+    def getting_data(self, name, top, requirement, salary):
         """
         Получает вакансии по введённым критериям
         :param name: Название вакансии
@@ -42,20 +42,22 @@ class SavingVacancies(AddingVacancies):
         """
 
         super().getting_data(name, top, salary, requirement)
-
-        salary_list = salary.split('-')
-        salary_from, salary_to = salary_list[0], salary_list[1]
-        with open('../data/vacancies_data.json', 'r+', encoding='utf-8') as file:
-            for vacancy in json.load(file)[:top]:
-                if name in vacancy['name']:
-                    self.__list_vacancy.append(vacancy)
-
-                if not vacancy['salary'] is None:
-                    if vacancy['salary']['from'] == salary_from and vacancy['salary']['to'] == salary_to:
+        try:
+            salary_list = salary.split('-')
+            salary_from, salary_to = salary_list[0], salary_list[1]
+            with open('../data/vacancies_data.json', 'r+', encoding='utf-8') as file:
+                for vacancy in json.load(file)[:top]:
+                    if name in vacancy['name']:
                         self.__list_vacancy.append(vacancy)
 
-                if requirement in vacancy['snippet']['requirement']:
-                    self.__list_vacancy.append(vacancy)
+                    if not vacancy['salary'] is None:
+                        if vacancy['salary']['from'] == salary_from and vacancy['salary']['to'] == salary_to:
+                            self.__list_vacancy.append(vacancy)
+
+                    if requirement in vacancy['snippet']['requirement']:
+                        self.__list_vacancy.append(vacancy)
+        except IndexError:
+            print('Нужно указать диапазон зарплаты')
         return self.__list_vacancy
 
     def delete_info(self):
